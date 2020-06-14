@@ -8,14 +8,17 @@ from abc import ABC, abstractmethod
 class ComicData(ABC):
     def __init__(self, raw_data={}):
         self.name = ""
-        self.from_raw(raw_data)
+        if raw_data != {}:
+            self.from_raw(raw_data)
+        else:
+            self.data = []
 
     @abstractmethod
     def to_raw(self):
         pass
 
     @abstractmethod
-    def from_raw(self):
+    def from_raw(self, raw_data):
         pass
 
     @abstractmethod
@@ -24,6 +27,10 @@ class ComicData(ABC):
 
     @abstractmethod
     def from_storage(self):
+        pass
+
+    @abstractmethod
+    def get(self, index):
         pass
 
 class Image(ComicData):
@@ -40,6 +47,9 @@ class Image(ComicData):
     def from_storage(self):
         with open('image_vfs.json', 'r') as src:
             self.data = json.loads(src.read())
+
+    def get(self):
+        return self.data
 
 class Episode(ComicData):
     def to_raw(self):
@@ -65,6 +75,12 @@ class Episode(ComicData):
         with open('Episode_vfs.json', 'r') as src:
             self.from_raw(json.loads(src.read()))
 
+    def get(self, page_idx):
+        if page_idx < len(self.data):
+            return self.data[page_idx]
+
+        return Image()
+
 class Comic(ComicData):
     def to_raw(self):
         result = {}
@@ -89,6 +105,13 @@ class Comic(ComicData):
         with open('Comic_vfs.json', 'r') as src:
             self.from_raw(json.loads(src.read()))
 
+    def get(self, episode_name):
+        for episode in self.data:
+            if episode.name == episode_name:
+                return episode
+
+        return Episode()
+
 class ComicCase(ComicData):
     def to_raw(self):
         result = {}
@@ -110,3 +133,9 @@ class ComicCase(ComicData):
         with open('ComicCase_vfs.json', 'r') as src:
             self.from_raw(json.loads(src.read()))
 
+    def get(self, comic_name):
+        for comic in self.data:
+            if comic.name == comic_name:
+                return comic
+
+        return Comic()
