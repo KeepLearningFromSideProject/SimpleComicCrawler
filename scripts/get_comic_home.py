@@ -33,5 +33,5 @@ def searchComic(pattern):
 if __name__== '__main__':
     comic_url = searchComic(comic_name)
 
-    print(json.dumps(comic_url))
+    print(json.dumps(comic_url), end = '')
 

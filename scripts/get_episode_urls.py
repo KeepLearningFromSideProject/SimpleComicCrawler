@@ -34,4 +34,4 @@ def searchEpisode(comic_url):
 if __name__== '__main__':
     episode_urls = searchEpisode(comic_url)
 
-    print(json.dumps(episode_urls))
+    print(json.dumps(episode_urls), end = '')
