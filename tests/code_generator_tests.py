@@ -2,7 +2,7 @@ import sys
 import unittest
 import subprocess
 
-sys.path.insert(0, '../src')
+sys.path.insert(0, 'src')
 
 from lib.crawl_engine import generate_code_get_comic_home
 from lib.crawl_engine import generate_code_get_episode_urls
@@ -27,15 +27,15 @@ class CodeGeneratorTest(unittest.TestCase):
         pass
 
     def test_get_comic_home(self):
-        code = generate_code_get_comic_home('../scripts', self.comic_name)
+        code = generate_code_get_comic_home('scripts', self.comic_name)
         execute_code(code)
 
     def test_get_episode_urls(self):
-        code = generate_code_get_episode_urls('../scripts', self.comic_url)
+        code = generate_code_get_episode_urls('scripts', self.comic_url)
         execute_code(code)
 
     def test_get_images(self):
-        code = generate_code_get_images('../scripts', self.episode_url)
+        code = generate_code_get_images('scripts', self.episode_url)
         execute_code(code)
 
 if __name__ == '__main__':
