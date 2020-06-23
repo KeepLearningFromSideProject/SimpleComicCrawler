@@ -81,7 +81,7 @@ if __name__== '__main__':
     page_num = getImageInfo(episode_url)[1]
     image_urls = getPictureUrls(episode_url, page_num)
 
-    print({
+    print(json.dumps({
         'page_num': page_num,
         'image_urls': image_urls
-    }, end = '')
+    }), end = '')
