@@ -8,8 +8,9 @@ import subprocess
 
 
 class CrawlingDoer:
-    def __init__(self, comic_case, download_request):
+    def __init__(self, comic_case, download_request, code_dir_base='../scripts'):
         self.comic_case = comic_case
+        self.code_dir_base = code_dir_base
         self.download_request = download_request
 
     def do_request(self):
@@ -22,8 +23,10 @@ class CrawlingDoer:
         })
 
         for comic in self.download_request.get_comics():
-            ch_task = CrawlingTask('get_comic_home', comic)
-            eu_task = CrawlingTask('get_episode_urls', ch_task.get_result())
+            ch_task = CrawlingTask('get_comic_home',
+                        comic, self.code_dir_base)
+            eu_task = CrawlingTask('get_episode_urls',
+                        ch_task.get_result(), self.code_dir_base)
 
             for episode in eu_task.get_result().keys():
 
@@ -38,14 +41,15 @@ class CrawlingDoer:
                     ):
                     continue
 
-                im_task = CrawlingTask('get_images', eu_task.get_result()[episode])
+                im_task = CrawlingTask('get_images',
+                        eu_task.get_result()[episode], self.code_dir_base)
                 res[comic][episode] = im_task.get_result()['image_urls']
 
         self.comic_case.from_raw(res)
         return self.comic_case
 
 class CrawlingTask:
-    def __init__(self, type_of_task, arg, code_dir_base='../scripts'):
+    def __init__(self, type_of_task, arg, code_dir_base):
         self.task_name = "[{}]: {}".format(type_of_task, arg)
 
         if type_of_task == 'get_comic_home':
