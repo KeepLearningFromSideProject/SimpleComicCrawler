@@ -20,5 +20,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: TestCodeGenerator
-      run:
+      run: |-
         python tests/code_generator_tests.py
+        python tests/crawling_doer_tests.py
