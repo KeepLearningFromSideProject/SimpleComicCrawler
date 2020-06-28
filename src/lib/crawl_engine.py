@@ -7,6 +7,15 @@ import json
 import subprocess
 
 
+class CrawlEngine:
+    def __init__(self, config={'code_dir_base': '../scripts'}):
+        self.config = config
+
+    def do_crawl(self, comic_case, download_request):
+        cd = CrawlingDoer(comic_case, download_request, self.config['code_dir_base'])
+        cc = cd.do_request()
+        return cc
+
 class CrawlingDoer:
     def __init__(self, comic_case, download_request, code_dir_base='../scripts'):
         self.comic_case = comic_case
