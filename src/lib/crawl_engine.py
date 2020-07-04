@@ -25,11 +25,9 @@ class CrawlingDoer:
     def do_request(self):
         res = self.comic_case.to_raw()
 
-        res.update({
-            comic: {}
-            for comic in 
-            self.download_request.get_comics()
-        })
+        for comic in self.download_request.get_comics():
+            if comic not in self.comic_case.to_raw():
+                res[comic] = {}
 
         for comic in self.download_request.get_comics():
             ch_task = CrawlingTask('get_comic_home',
