@@ -4,22 +4,26 @@ crawl engine
 
 import os
 import json
+import urllib
+import requests
 import subprocess
 
-
 class CrawlEngine:
-    def __init__(self, config={'code_dir_base': '../scripts'}):
+    def __init__(self, config={
+            'code_dir_base': '../scripts',
+            'worker_info': {'type': 'direct'}
+        }):
         self.config = config
 
     def do_crawl(self, comic_case, download_request):
-        cd = CrawlingDoer(comic_case, download_request, self.config['code_dir_base'])
+        cd = CrawlingDoer(comic_case, download_request, self.config)
         cc = cd.do_request()
         return cc
 
 class CrawlingDoer:
-    def __init__(self, comic_case, download_request, code_dir_base='../scripts'):
+    def __init__(self, comic_case, download_request, config):
         self.comic_case = comic_case
-        self.code_dir_base = code_dir_base
+        self.config = config
         self.download_request = download_request
 
     def do_request(self):
@@ -31,9 +35,9 @@ class CrawlingDoer:
 
         for comic in self.download_request.get_comics():
             ch_task = CrawlingTask('get_comic_home',
-                        comic, self.code_dir_base)
+                        comic, self.config)
             eu_task = CrawlingTask('get_episode_urls',
-                        ch_task.get_result(), self.code_dir_base)
+                        ch_task.get_result(), self.config)
 
             for episode in eu_task.get_result().keys():
 
@@ -49,22 +53,23 @@ class CrawlingDoer:
                     continue
 
                 im_task = CrawlingTask('get_images',
-                        eu_task.get_result()[episode], self.code_dir_base)
+                        eu_task.get_result()[episode], self.config)
                 res[comic][episode] = im_task.get_result()['image_urls']
 
         self.comic_case.from_raw(res)
         return self.comic_case
 
 class CrawlingTask:
-    def __init__(self, type_of_task, arg, code_dir_base):
+    def __init__(self, type_of_task, arg, config):
         self.task_name = "[{}]: {}".format(type_of_task, arg)
+        self.worker_info = config['worker_info']
 
         if type_of_task == 'get_comic_home':
-            self.code = generate_code_get_comic_home(code_dir_base, arg)
+            self.code = generate_code_get_comic_home(config['code_dir_base'], arg)
         elif type_of_task == 'get_episode_urls':
-            self.code = generate_code_get_episode_urls(code_dir_base, arg)
+            self.code = generate_code_get_episode_urls(config['code_dir_base'], arg)
         elif type_of_task == 'get_images':
-            self.code = generate_code_get_images(code_dir_base, arg)
+            self.code = generate_code_get_images(config['code_dir_base'], arg)
         else:
             raise ValueError('Unsupported task type: ' + type_of_task)
 
@@ -78,13 +83,33 @@ class CrawlingTask:
 
     def execute(self):
         print('[Execute]' + self.task_name)
-        res = subprocess.run(
-            ["python3"],
-            stdout=subprocess.PIPE,
-            input=bytes(self.code, 'utf-8')
-        )
+        if self.worker_info['type'] == 'direct':
+            res = execute_code_directly(self.code)
+        elif self.worker_info['type'] == 'worker':
+            res = execute_code_with_worker(
+                    self.code, self.worker_info['url'])
 
-        self.result = json.loads(res.stdout.decode('utf-8'))
+        self.result = res
+
+def execute_code_directly(code):
+    res = subprocess.run(
+        ["python3"],
+        stdout=subprocess.PIPE,
+        input=bytes(code, 'utf-8')
+    )
+
+    return json.loads(res.stdout.decode('utf-8'))
+
+def execute_code_with_worker(code, url):
+    res = requests.get(
+        url,
+        {
+            #'code': urllib.parse.urlencode(code),
+            'code': urllib.parse.quote_plus(code),
+            'args': '123'
+        }
+    )
+    return json.loads(res.content)
 
 def generate_code_get_comic_home(code_dir_base, comic_name):
     code_path = os.path.join(code_dir_base, 'get_comic_home.py')
