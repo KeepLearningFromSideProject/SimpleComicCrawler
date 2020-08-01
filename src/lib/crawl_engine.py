@@ -104,11 +104,11 @@ def execute_code_with_worker(code, url):
     res = requests.get(
         url,
         {
-            #'code': urllib.parse.urlencode(code),
             'code': urllib.parse.quote_plus(code),
-            'args': '123'
         }
     )
+
+    print(res.content)
     return json.loads(res.content)
 
 def generate_code_get_comic_home(code_dir_base, comic_name):
