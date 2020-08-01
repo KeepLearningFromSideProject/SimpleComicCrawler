@@ -1,12 +1,14 @@
 # please add the target episode_url at the start of this code, example:
 # episode_url = 'https://comicbus.live/online/a-9337.html?ch=315'
+# aws_arn = 'arn:aws:lambda:xxxxxxxxxx:xxxxxxxxx:function:xxxxxxxxxx'
 
 import requests
 import urllib
-import execjs
 import sys
 import json
 import re
+
+import boto3
 
 from bs4 import BeautifulSoup as Soup
 
@@ -52,22 +54,29 @@ def getImageInfo(episode_url, p=1):
         }
     """
 
-    context = execjs.compile(
-        "var y=46;" +
-        "var ch={};".format(ch) +
-        "var ti={};".format(ti) +
-        "var chs='{}';".format(chs) +
-        "var cs='{}';".format(cs) +
-        "var p={};".format(p) + 
-        "var result={};" +
-        "function ge(e) {return result;};" +
-        nessary_js_funcs +
-        "function getImgInfo() {" +
-        main_loop +
-        "return [result.src, ps];}"
+    total_code = "{}; {}; {}; (function(){{ {} }})()".format(
+        ''.join([
+            "var y=46;",
+            "var ch={};".format(ch),
+            "var ti={};".format(ti),
+            "var chs='{}';".format(chs),
+            "var cs='{}';".format(cs),
+            "var p={};".format(p),
+            "var result={};",
+        ]),
+        nessary_js_funcs,
+        'function ge(e) {return result;};',
+        main_loop + '\nreturn [result.src, ps];'
     )
 
-    return context.call('getImgInfo')
+    client = boto3.client('lambda')
+    resp = client.invoke(
+        FunctionName = aws_arn,
+        InvocationType = 'RequestResponse',
+        Payload = json.dumps({'code': total_code})
+    )
+
+    return json.loads( json.loads(resp['Payload'].read())['body'] )
 
 def getPictureUrls(episode_url, page_num):
     page_urls = []
