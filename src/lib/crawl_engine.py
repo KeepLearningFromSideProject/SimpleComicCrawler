@@ -88,6 +88,9 @@ class CrawlingTask:
         elif self.worker_info['type'] == 'worker':
             res = execute_code_with_worker(
                     self.code, self.worker_info['url'])
+        elif self.worker_info['type'] == 'aws_lambda':
+            res = execute_code_with_lambda(
+                    self.code, self.worker_info['url'], self.worker_info['js_worker_arn'])
 
         self.result = res
 
@@ -108,7 +111,18 @@ def execute_code_with_worker(code, url):
         }
     )
 
-    print(res.content)
+    return json.loads(res.content)
+
+def execute_code_with_lambda(code, url, js_worker_arn):
+    code_with_arn = "aws_arn='{}'\n{}".format(js_worker_arn, code)
+
+    res = requests.get(
+        url,
+        {
+            'code': urllib.parse.quote_plus(code_with_arn)
+        }
+    )
+
     return json.loads(res.content)
 
 def generate_code_get_comic_home(code_dir_base, comic_name):
