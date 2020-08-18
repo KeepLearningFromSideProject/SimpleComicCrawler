@@ -23,7 +23,7 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_get_image1(self):
         cd1 = CrawlingDoer(self.comic_case1, self.download_request,
-                           code_dir_base='scripts')
+                           config={'code_dir_base': 'scripts', 'worker_info': {'type': 'direct'}})
         r_cc1 = cd1.do_request()
 
         assert r_cc1.get('食戟之靈').get('01話').data != []
@@ -31,16 +31,16 @@ class CodeGeneratorTest(unittest.TestCase):
 
     def test_get_image2(self):
         cd2 = CrawlingDoer(self.comic_case2, self.download_request,
-                           code_dir_base='scripts')
+                           config={'code_dir_base': 'scripts', 'worker_info': {'type': 'direct'}})
         r_cc2 = cd2.do_request()
         assert r_cc2.get('食戟之靈').get('01話').data != []
         assert r_cc2.get('食戟之靈').get('02話').data != []
 
     def test_get_image3(self):
         cd3 = CrawlingDoer(self.comic_case3, self.download_request,
-                           code_dir_base='scripts')
+                           config={'code_dir_base': 'scripts', 'worker_info': {'type': 'direct'}})
         r_cc3 = cd3.do_request()
-        assert r_cc3.get('食戟之靈').get('01話').data == []
+        assert r_cc3.get('食戟之靈').get('01話').data == self.comic_case3.get('食戟之靈').get('01話').data
         assert r_cc3.get('食戟之靈').get('02話').data != []
 
 
