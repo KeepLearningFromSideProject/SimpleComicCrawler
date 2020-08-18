@@ -8,17 +8,19 @@ import urllib
 import requests
 import subprocess
 
+
 class CrawlEngine:
     def __init__(self, config={
-            'code_dir_base': '../scripts',
-            'worker_info': {'type': 'direct'}
-        }):
+        'code_dir_base': '../scripts',
+        'worker_info': {'type': 'direct'}
+    }):
         self.config = config
 
     def do_crawl(self, comic_case, download_request):
         cd = CrawlingDoer(comic_case, download_request, self.config)
         cc = cd.do_request()
         return cc
+
 
 class CrawlingDoer:
     def __init__(self, comic_case, download_request, config):
@@ -35,29 +37,30 @@ class CrawlingDoer:
 
         for comic in self.download_request.get_comics():
             ch_task = CrawlingTask('get_comic_home',
-                        comic, self.config)
+                                   comic, self.config)
             eu_task = CrawlingTask('get_episode_urls',
-                        ch_task.get_result(), self.config)
+                                   ch_task.get_result(), self.config)
 
             for episode in eu_task.get_result().keys():
 
                 # Check the condition below of the crawled episode
                 # 1. in the comic case
-                # 2. not in the request for downlading and request is not empty
+                # 2. not in the request for downloading and request is not empty
                 # if one of them is true, skip this episode.
                 if self.comic_case.get(comic).get(episode).data != [] or \
-                    ( \
-                        self.download_request.get_episodes(comic) != {} and \
-                        episode not in self.download_request.get_episodes(comic) \
-                    ):
+                        (
+                                self.download_request.get_episodes(comic) != {} and
+                                episode not in self.download_request.get_episodes(comic)
+                        ):
                     continue
 
                 im_task = CrawlingTask('get_images',
-                        eu_task.get_result()[episode], self.config)
+                                       eu_task.get_result()[episode], self.config)
                 res[comic][episode] = im_task.get_result()['image_urls']
 
         self.comic_case.from_raw(res)
         return self.comic_case
+
 
 class CrawlingTask:
     def __init__(self, type_of_task, arg, config):
@@ -76,7 +79,7 @@ class CrawlingTask:
         self.result = None
 
     def get_result(self, cache=True):
-        if cache == False or self.result == None:
+        if cache is False or self.result is None:
             self.execute()
 
         return self.result
@@ -87,9 +90,12 @@ class CrawlingTask:
             res = execute_code_directly(self.code)
         elif self.worker_info['type'] == 'worker':
             res = execute_code_with_worker(
-                    self.code, self.worker_info['url'])
+                self.code, self.worker_info['url'])
+        else:
+            res = None
 
         self.result = res
+
 
 def execute_code_directly(code):
     res = subprocess.run(
@@ -100,6 +106,7 @@ def execute_code_directly(code):
 
     return json.loads(res.stdout.decode('utf-8'))
 
+
 def execute_code_with_worker(code, url):
     res = requests.get(
         url,
@@ -108,18 +115,20 @@ def execute_code_with_worker(code, url):
         }
     )
 
-    print(res.content)
     return json.loads(res.content)
+
 
 def generate_code_get_comic_home(code_dir_base, comic_name):
     code_path = os.path.join(code_dir_base, 'get_comic_home.py')
     with open(code_path, 'r') as src:
         return 'comic_name = "{}"\n{}'.format(comic_name, src.read())
 
+
 def generate_code_get_episode_urls(code_dir_base, comic_home):
     code_path = os.path.join(code_dir_base, 'get_episode_urls.py')
     with open(code_path, 'r') as src:
         return 'comic_url = "{}"\n{}'.format(comic_home, src.read())
+
 
 def generate_code_get_images(code_dir_base, episode_url):
     code_path = os.path.join(code_dir_base, 'get_images.py')

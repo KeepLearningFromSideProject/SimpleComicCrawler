@@ -4,9 +4,10 @@ import subprocess
 
 sys.path.insert(0, 'src')
 
-from lib.crawl_engine import generate_code_get_comic_home
 from lib.crawl_engine import generate_code_get_episode_urls
 from lib.crawl_engine import generate_code_get_images
+from lib.crawl_engine import generate_code_get_comic_home
+
 
 def execute_code(code):
     res = subprocess.run(
@@ -16,6 +17,7 @@ def execute_code(code):
     )
 
     return res.stdout.decode('utf-8')
+
 
 class CodeGeneratorTest(unittest.TestCase):
     def setUp(self):
@@ -37,6 +39,7 @@ class CodeGeneratorTest(unittest.TestCase):
     def test_get_images(self):
         code = generate_code_get_images('scripts', self.episode_url)
         execute_code(code)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

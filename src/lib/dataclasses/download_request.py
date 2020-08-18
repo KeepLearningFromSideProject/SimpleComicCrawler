@@ -2,7 +2,8 @@
 download order
 """
 
-class BasicDownloadRequest():
+
+class BasicDownloadRequest:
     def __init__(self, raw_data={}):
         self.from_raw(raw_data)
 

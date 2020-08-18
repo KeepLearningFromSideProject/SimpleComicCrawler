@@ -5,6 +5,7 @@
 import json
 from abc import ABC, abstractmethod
 
+
 class ComicData(ABC):
     def __init__(self, raw_data={}):
         self.name = ""
@@ -33,6 +34,7 @@ class ComicData(ABC):
     def get(self, index):
         pass
 
+
 class Image(ComicData):
     def to_raw(self):
         return self.data
@@ -48,8 +50,9 @@ class Image(ComicData):
         with open('image_vfs.json', 'r') as src:
             self.data = json.loads(src.read())
 
-    def get(self):
+    def get(self, index):
         return self.data
+
 
 class Episode(ComicData):
     def to_raw(self):
@@ -62,7 +65,7 @@ class Episode(ComicData):
     def from_raw(self, raw_data):
         self.name = list(raw_data.keys())[0]
         self.data = []
-        
+
         raw_images = raw_data[self.name]
         for image_url in raw_images:
             self.data.append(Image(image_url))
@@ -81,6 +84,7 @@ class Episode(ComicData):
 
         return Image()
 
+
 class Comic(ComicData):
     def to_raw(self):
         result = {}
@@ -96,7 +100,7 @@ class Comic(ComicData):
         raw_episodes = raw_data[self.name]
         for e_name, e_data in raw_episodes.items():
             self.data.append(Episode({e_name: e_data}))
-        
+
     def to_storage(self):
         with open('Comic_vfs.json', 'w') as dst:
             dst.write(json.dumps(self.to_raw()))
@@ -111,6 +115,7 @@ class Comic(ComicData):
                 return episode
 
         return Episode()
+
 
 class ComicCase(ComicData):
     def to_raw(self):
