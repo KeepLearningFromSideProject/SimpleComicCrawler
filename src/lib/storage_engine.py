@@ -4,6 +4,8 @@ storage engine
 
 import json
 import requests
+import pymysql
+
 from .dataclasses.comic_data_class import ComicCase
 
 
@@ -65,10 +67,100 @@ class FuseDBDriver:
         )
 
 
+class MysqlDBDriver:
+    def __init__(self, db, db_host, db_port, db_user, db_password):
+        self.connection = pymysql.connect(
+            db=db,
+            host=db_host,
+            port=db_port,
+            user=db_user,
+            password=db_password
+        )
+
+    def __del__(self):
+        self.connection.close()
+
+    def get_all(self):
+        cursor = self.connection.cursor()
+        raw = {}
+
+        comic_records = get_all_comic(cursor)
+        for comic_id, comic_name in comic_records:
+            raw[comic_name] = {}
+            episode_records = get_all_episodes(cursor, comic_id)
+            for episode_id, episode_name in episode_records:
+                raw[comic_name][episode_name] = get_all_comic_urls(cursor, episode_id)
+
+        cursor.close()
+        return raw
+
+    def save_all(self, raw):
+        cursor = self.connection.cursor()
+        for comic_name in raw.keys():
+            comic_id = select_comic_or_insert(cursor, comic_name)
+            for episode_name in raw[comic_name].keys():
+                episode_id = select_episode_or_insert(cursor, comic_id, episode_name)
+                for image_url in raw[comic_name][episode_name]:
+                    insert_image(cursor, episode_id, image_url)
+
+        self.connection.commit()
+        cursor.close()
+
+
 def get_storage_instance(storage_config):
     if storage_config["type"] == 'json':
         return JsonStorageDriver(storage_config["storage_path"])
     elif storage_config["type"] == 'fuse_db':
         return FuseDBDriver(storage_config['db_url'])
+    elif storage_config["type"] == 'mysql':
+        return MysqlDBDriver(
+            storage_config['db'], storage_config['db_host'], storage_config['db_port'],
+            storage_config['db_user'], storage_config['db_password']
+        )
     else:
         raise NotImplemented(f'No such StorageDriver of type "{storage_config["type"]}"')
+
+
+def select_comic_or_insert(cursor, comic_name):
+    select_sql = "SELECT id FROM comics WHERE comic_name = %s"
+    insert_sql = "INSERT INTO comics ( comic_name ) VALUES ( %s )"
+    rec_len = cursor.execute(select_sql, comic_name)
+
+    if rec_len > 0:
+        return cursor.fetchone()[0]
+    else:
+        cursor.execute(insert_sql, comic_name)
+        return cursor.lastrowid
+
+
+def select_episode_or_insert(cursor, comic_id, episode_name):
+    select_sql = "SELECT id FROM episodes WHERE comic_id = %s and episode_name = %s"
+    insert_sql = "INSERT INTO episodes ( comic_id, episode_name ) VALUES ( %s, %s )"
+    rec_len = cursor.execute(select_sql, (comic_id, episode_name))
+
+    if rec_len > 0:
+        return cursor.fetchone()[0]
+    else:
+        cursor.execute(insert_sql, (comic_id, episode_name))
+        return cursor.lastrowid
+
+
+def insert_image(cursor, episode_id, image_url):
+    insert_sql = "INSERT INTO images ( episode_id, image_url ) VALUES ( %s, %s )"
+    cursor.execute(insert_sql, (episode_id, image_url))
+    return cursor.lastrowid
+
+
+def get_all_comic(cursor):
+    cursor.execute("SELECT * FROM comics")
+    return cursor.fetchall()
+
+
+def get_all_episodes(cursor, comic_id):
+    cursor.execute("SELECT id, episode_name FROM episodes WHERE comic_id = %s", comic_id)
+    return cursor.fetchall()
+
+
+def get_all_comic_urls(cursor, episode_id):
+    cursor.execute("SELECT image_url FROM images WHERE episode_id = %s", episode_id)
+    return list(cursor.fetchall())

@@ -1,3 +1,4 @@
 PyExecJS
 beautifulsoup4
 requests
+PyMySQL
