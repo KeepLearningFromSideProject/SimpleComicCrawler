@@ -14,7 +14,7 @@ class BasicDownloadRequest:
         return self.request
 
     def get_comics(self):
-        return self.request.keys()
+        return list(self.request.keys())
 
     def get_episodes(self, comic_name):
-        return self.request[comic_name].keys()
+        return list(self.request[comic_name].keys())

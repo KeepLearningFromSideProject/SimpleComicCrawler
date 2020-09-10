@@ -49,7 +49,7 @@ class CrawlingDoer:
                 # if one of them is true, skip this episode.
                 if self.comic_case.get(comic).get(episode).data != [] or \
                         (
-                                self.download_request.get_episodes(comic) != {} and
+                                self.download_request.get_episodes(comic) != [] and
                                 episode not in self.download_request.get_episodes(comic)
                         ):
                     continue
