@@ -101,7 +101,7 @@ class MysqlDBDriver:
             for episode_name in raw[comic_name].keys():
                 episode_id = select_episode_or_insert(cursor, comic_id, episode_name)
                 for image_url in raw[comic_name][episode_name]:
-                    insert_image(cursor, episode_id, image_url)
+                    insert_image(cursor, comic_id, episode_id, image_url)
 
         self.connection.commit()
         cursor.close()
@@ -145,9 +145,9 @@ def select_episode_or_insert(cursor, comic_id, episode_name):
         return cursor.lastrowid
 
 
-def insert_image(cursor, episode_id, image_url):
-    insert_sql = "INSERT INTO images ( episode_id, image_url ) VALUES ( %s, %s )"
-    cursor.execute(insert_sql, (episode_id, image_url))
+def insert_image(cursor, comic_id, episode_id, image_url):
+    insert_sql = "INSERT INTO images ( comic_id, episode_id, image_url ) VALUES ( %s, %s, %s )"
+    cursor.execute(insert_sql, (comic_id, episode_id, image_url))
     return cursor.lastrowid
 
 
