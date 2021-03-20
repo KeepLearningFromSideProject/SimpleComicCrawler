@@ -17,7 +17,7 @@ def doRequest(url):
     image_urls = []
     for i in range(1, page_num + 1):
         driver.get(f"{url}-{i}")
-        image_urls.append('https:' + driver.execute_script("return document.getElementById('TheImg').src;"))
+        image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
 
     driver.close()
 
