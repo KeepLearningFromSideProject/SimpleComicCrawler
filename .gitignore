@@ -4,5 +4,8 @@
 *.txt
 *.json
 *.ini
-
+*.tfvars
+.terraform*
+*.tfplan
+*.tfstate*
 venv/*
