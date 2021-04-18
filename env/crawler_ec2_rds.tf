@@ -142,6 +142,26 @@ resource "aws_security_group" "db-sg" {
     }
 }
 
+resource "aws_security_group" "lambda-sg" {
+  name        = "lambda-security-group"
+  description = "lambda security group"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 # Instances
 resource "aws_instance" "crawler-ec2" {
     ami                    = data.aws_ami.ubuntu.id
@@ -195,7 +215,6 @@ resource "aws_instance" "crawler-ec2" {
             "cat ~/db_build.sql | mysql --defaults-extra-file=~/account.info -h ${element(split(":", aws_db_instance.comic-db.endpoint), 0)};",
 
             # Init crontab
-            #"(crontab -l 2>/dev/null; echo \"*/5 * * * * `pwd`/src/basic_main.py ~/req_file.json `pwd`/scripts `pwd`/db.json \") | crontab -",
             "(crontab -l 2>/dev/null; echo \"*/5 * * * * ${local.crawl_cmd} && killall -9 chromium-browser chromedriver\") | crontab -",
 
         ]
