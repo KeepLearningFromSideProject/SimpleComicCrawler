@@ -2,6 +2,7 @@ import logging
 import json
 import time
 import subprocess
+import os
 
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.INFO)
@@ -9,11 +10,15 @@ LOGGER.setLevel(logging.INFO)
 def handler(event, context):
     LOGGER.info('Event: %s', event)
 
-    proxy_process = subprocess.Popen("/proxy_launch.sh")
+    proxy_process = subprocess.Popen(["bash", "/proxy_launch.sh"])
     time.sleep(10)
+    os.system("killall -9 ssh")
     proxy_process.terminate()
 
     return {
         'statusCode': 200,
-        'body': json.dumps(event, indent=4)
+        'body': "success"
     }
+
+if __name__ == "__main__":
+    print(handler([], []))
