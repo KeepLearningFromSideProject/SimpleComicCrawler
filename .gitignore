@@ -1,3 +1,5 @@
+.DS_Store
+*.sql
 *.swp
 *.swo
 *.pyc
@@ -9,4 +11,6 @@
 *.tfplan
 *.tfstate*
 *.bk
+*.pem
+*_test.sh
 venv/*
