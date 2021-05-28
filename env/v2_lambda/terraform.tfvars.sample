@@ -1,0 +1,13 @@
+aws_access_key = "YOUR_AWS_ACCESS_KEY"
+aws_secret_key = "YOUR_AWS_SECRET_KEY"
+
+proxy_host = "HOST_IN_TAIWAN"
+proxy_port = "PORT_FOR_SSH"
+proxy_user = "ACCOUNTNAME_FOR_SSH"
+proxy_PEM  = "CREDENTIAL_FOR_SSH"
+
+db_username = "DB_USERNAME_FOR_RDS"
+db_password = "DB_PASSWORD_FOR_RDS"
+db_sql_path = "SQL_FILE_TO_INITIALIZE_RDS"
+
+req_file = "REQ_FILE_JSON"

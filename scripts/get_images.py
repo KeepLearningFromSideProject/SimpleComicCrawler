@@ -13,14 +13,14 @@ def doRequest(url):
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument('--proxy-server=socks5://localhost:8079')
-    chrome_options.add_argument("--single-process")
-    chrome_options.add_argument("--disable-application-cache")
-    chrome_options.add_argument("--disable-infobars")
-    chrome_options.add_argument("--hide-scrollbars")
-    chrome_options.add_argument("--enable-logging")
-    chrome_options.add_argument("--log-level=0")
-    chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.add_argument("--homedir=/tmp")
+    chrome_options.add_argument('--single-process')
+    chrome_options.add_argument('--disable-application-cache')
+    chrome_options.add_argument('--disable-infobars')
+    chrome_options.add_argument('--hide-scrollbars')
+    chrome_options.add_argument('--enable-logging')
+    chrome_options.add_argument('--log-level=0')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--homedir=/tmp')
 
     try:
         driver = webdriver.Chrome(
