@@ -45,11 +45,6 @@ RUN cd SimpleComicCrawler && \
 	pip3 install -r requirements.txt && \
 	cp -r src/* ${LAMBDA_TASK_ROOT}
 
-# TODO: for test
-RUN pip3 install pysocks
-ADD src/lambda_main.py ${LAMBDA_TASK_ROOT}/lambda_main.py
-ADD scripts/get_images.py ${LAMBDA_TASK_ROOT}/SimpleComicCrawler/scripts/get_images.py
-
 # Add req
 ARG REQ_FILE
 ADD $REQ_FILE ${LAMBDA_TASK_ROOT}/req_file.json
