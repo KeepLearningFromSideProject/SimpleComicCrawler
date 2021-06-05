@@ -8,6 +8,8 @@ import urllib
 import requests
 import subprocess
 
+from .dataclasses.comic_data_class import ComicCase
+
 
 class CrawlEngine:
     def __init__(self, config={
@@ -16,25 +18,20 @@ class CrawlEngine:
     }):
         self.config = config
 
-    def do_crawl(self, comic_case, download_request):
-        cd = CrawlingDoer(comic_case, download_request, self.config)
+    def do_crawl(self, comic_case, download_request, storage_engine):
+        cd = CrawlingDoer(comic_case, download_request, self.config, storage_engine)
         cc = cd.do_request()
         return cc
 
 
 class CrawlingDoer:
-    def __init__(self, comic_case, download_request, config):
+    def __init__(self, comic_case, download_request, config, storage_engine):
         self.comic_case = comic_case
         self.config = config
         self.download_request = download_request
+        self.storage_engine = storage_engine
 
     def do_request(self):
-        res = self.comic_case.to_raw()
-
-        for comic in self.download_request.get_comics():
-            if comic not in self.comic_case.to_raw():
-                res[comic] = {}
-
         for comic in self.download_request.get_comics():
             ch_task = CrawlingTask('get_comic_home',
                                    comic, self.config)
@@ -56,10 +53,11 @@ class CrawlingDoer:
 
                 im_task = CrawlingTask('get_images',
                                        eu_task.get_result()[episode], self.config)
-                res[comic][episode] = im_task.get_result()['image_urls']
+                tmp_comic_case = ComicCase({
+                    comic: {episode: im_task.get_result()['image_urls']}
+                })
 
-        self.comic_case.from_raw(res)
-        return self.comic_case
+                self.storage_engine.save_all(comic_case=tmp_comic_case)
 
 
 class CrawlingTask:

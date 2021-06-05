@@ -31,8 +31,6 @@ class RequestHandler:
         self.storage_config = storage_config
         self.storage_engine = StorageEngine(storage_config)
 
-        self.result = ComicCase({})
-
     """
     To do the crawling task.
 
@@ -54,16 +52,9 @@ class RequestHandler:
     def do(self, raw_request):
         dr = BasicDownloadRequest(raw_request)
 
-        self.result = self.crawler_engine.do_crawl(
+        self.crawler_engine.do_crawl(
             comic_case=self.storage_engine.get_all(),
-            download_request=dr
+            download_request=dr,
+            storage_engine=self.storage_engine
         )
 
-    """
-    To sync the download result to db.
-    """
-
-    def sync(self):
-        self.storage_engine.save_all(
-            comic_case=self.result
-        )

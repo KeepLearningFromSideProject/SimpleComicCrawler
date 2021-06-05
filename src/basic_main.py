@@ -27,7 +27,6 @@ def process(raw_request, code_base_dir, storage_path):
     )
 
     req_h.do(raw_request)
-    req_h.sync()
 
 
 if __name__ == '__main__':
