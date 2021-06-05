@@ -16,6 +16,7 @@ from lib.request_handler import RequestHandler
 def process(raw_request, code_base_dir, db_url):
     req_h = RequestHandler(
         crawler_config={
+            'max_download': -1,
             'code_dir_base': code_base_dir,
             'worker_info': {
                 'type': 'direct'
@@ -27,7 +28,6 @@ def process(raw_request, code_base_dir, db_url):
     )
 
     req_h.do(raw_request)
-    req_h.sync()
 
 
 if __name__ == '__main__':

@@ -32,6 +32,8 @@ class CrawlingDoer:
         self.storage_engine = storage_engine
 
     def do_request(self):
+        download_counter = 0
+
         for comic in self.download_request.get_comics():
             ch_task = CrawlingTask('get_comic_home',
                                    comic, self.config)
@@ -58,6 +60,11 @@ class CrawlingDoer:
                 })
 
                 self.storage_engine.save_all(comic_case=tmp_comic_case)
+
+                download_counter += 1
+
+                if download_counter == self.config['max_download']:
+                    return
 
 
 class CrawlingTask:
