@@ -31,8 +31,23 @@ class JsonStorageDriver:
             return json.loads(src.read())
 
     def save_all(self, raw):
+        cur_data = {}
+        with open(self.file_path, 'r') as src:
+            cur_data = json.loads(src.read())
+
+        for comic in raw:
+            if comic not in cur_data:
+                cur_data[comic] = {}
+
+            for episode in raw[comic]:
+                if episode not in cur_data[comic]:
+                    cur_data[comic][episode] = []
+
+                cur_data[comic][episode] = \
+                    list(set(cur_data[comic][episode]) | set(raw[comic][episode]))
+
         with open(self.file_path, 'w') as dst:
-            dst.write(json.dumps(raw, indent=4))
+            dst.write(json.dumps(cur_data, indent=4))
 
 
 class FuseDBDriver:
