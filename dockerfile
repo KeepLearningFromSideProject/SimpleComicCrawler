@@ -32,7 +32,7 @@ ARG PROXY_HOST
 ARG PROXY_PORT
 ARG PROXY_USER
 ARG PROXY_PEM
-ADD $PROXY_PEM /proxy.pem
+RUN echo "$PROXY_PEM" | xargs -I{} echo {} >> /proxy.pem; echo >> /proxy.pem
 RUN chmod 644 /proxy.pem
 
 ARG proxy_command="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -N -D8079 -p$PROXY_PORT -4 $PROXY_USER@$PROXY_HOST -i /proxy.pem &\nwait \$!"
