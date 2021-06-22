@@ -5,14 +5,20 @@ import os
 import json
 from selenium import webdriver
 
+def isInLambda():
+    return os.path.exists('/var/task')
+
 def doRequest(url):
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.binary_location = "/var/task/bin/headless-chromium"
+    chrome_options.add_argument('--proxy-server=socks5://localhost:8079')
+
+    if isInLambda():
+        chrome_options.binary_location = "/var/task/bin/headless-chromium"
+
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--proxy-server=socks5://localhost:8079')
     chrome_options.add_argument('--single-process')
     chrome_options.add_argument('--disable-application-cache')
     chrome_options.add_argument('--disable-infobars')
@@ -23,8 +29,13 @@ def doRequest(url):
     chrome_options.add_argument('--homedir=/tmp')
 
     try:
+        if isInLambda():
+            chromedriver = '/var/task/bin/chromedriver'
+        else:
+            chromedriver = 'chromedriver'
+
         driver = webdriver.Chrome(
-            "/var/task/bin/chromedriver",
+            chromedriver,
             options=chrome_options,
             service_log_path='/tmp/chromedriver.log')
 
@@ -37,7 +48,8 @@ def doRequest(url):
             driver.get(f"{url}-{i}")
             image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
         driver.close()
-    except:
+    except Exception as e:
+        print(e)
         image_urls = []
         page_num = 0
 
