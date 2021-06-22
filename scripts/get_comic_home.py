@@ -1,5 +1,5 @@
 # please add the target comic_name at the start of this code, example:
-# comic_name = '食戟之靈'
+# comic_name = b'\xe9\xa3\x9f\xe6\x88\x9f\xe4\xb9\x8b\xe9\x9d\x88'.decode(encoding='utf-8')
 
 import requests
 import urllib

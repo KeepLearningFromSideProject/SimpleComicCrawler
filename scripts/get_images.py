@@ -61,4 +61,4 @@ if __name__== '__main__':
     print(json.dumps({
         'page_num': page_num,
         'image_urls': image_urls
-    }), end = '')
+    }), end='')
