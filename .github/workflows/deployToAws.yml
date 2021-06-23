@@ -1,0 +1,37 @@
+name: Deploy to aws
+
+on:
+  push:
+    branches:
+    - master
+jobs:
+  build:
+    name: Set up environment
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: install venv
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.6.10'
+    - name: Get req & pem & tfstate & tfvar file
+      uses: chrislennon/action-aws-cli@v1.1
+    - run: |
+        aws s3 cp s3://comiccrawler-data/req.json .
+        aws s3 cp s3://comiccrawler-data/tocms.pem .
+        aws s3 cp s3://comiccrawler-data/terraform.tfvars env/v2_lambda
+        aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v2_lambda
+      env:
+        AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Build image
+      run: |
+        docker build --build-arg PROXY_HOST="${{ secrets.PROXY_HOST }}" \
+          --build-arg PROXY_PORT="${{ secrets.PROXY_PORT }}" \
+          --build-arg PROXY_USER="${{ secrets.PROXY_USER }}" \
+          --build-arg PROXY_PEM="$(cat tocms.pem)" \
+          --build-arg REQ_FILE='req.json' \
+          --no-cache -t lambda-action:latest .
+
