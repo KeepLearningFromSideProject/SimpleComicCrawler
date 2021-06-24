@@ -8,6 +8,8 @@ jobs:
   deploy-to-aws:
     name: deploy-to-aws
     runs-on: ubuntu-latest
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     steps:
     - uses: actions/checkout@v1
     - name: install venv
