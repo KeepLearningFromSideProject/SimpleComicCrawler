@@ -5,8 +5,8 @@ on:
     branches:
     - master
 jobs:
-  build:
-    name: Set up environment
+  deploy-to-aws:
+    name: deploy-to-aws
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -14,24 +14,43 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.6.10'
-    - name: Get req & pem & tfstate & tfvar file
+    - name: Get req & pem & tfstate & tfvar & sql file
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
         aws s3 cp s3://comiccrawler-data/req.json .
         aws s3 cp s3://comiccrawler-data/tocms.pem .
         aws s3 cp s3://comiccrawler-data/terraform.tfvars env/v2_lambda
         aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v2_lambda
+        aws s3 cp s3://comiccrawler-data/prod_db_build.sql env
       env:
         AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-    - name: Build image
+    - name: Set up for Amazon ECR
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-1
+    - name: Login to Amazon ECR
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Install mysql client
+      run: sudo apt-get update && sudo apt-get install -y mysql-client-8.0
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+    - name: Run terraform
       run: |
-        docker build --build-arg PROXY_HOST="${{ secrets.PROXY_HOST }}" \
-          --build-arg PROXY_PORT="${{ secrets.PROXY_PORT }}" \
-          --build-arg PROXY_USER="${{ secrets.PROXY_USER }}" \
-          --build-arg PROXY_PEM="$(cat tocms.pem)" \
-          --build-arg REQ_FILE='req.json' \
-          --no-cache -t lambda-action:latest .
-
+        cd env/v2_lambda
+        export TF_VAR_proxy_PEM=$(cat ../../tocms.pem)
+        terraform init
+        terraform plan -out dev.tfplan
+        terraform apply dev.tfplan || touch build_failed.txt
+        if [ -f "build_failed.txt" ]
+        then
+          terraform plan -destroy -out destroy.tfplan && terraform apply destroy.tfplan
+          aws s3 cp terraform.tfstate s3://comiccrawler-data/
+          exit 1
+        fi
+    - name: Sync terraform.tfstate
+      run: aws s3 cp env/v2_lambda/terraform.tfstate s3://comiccrawler-data/

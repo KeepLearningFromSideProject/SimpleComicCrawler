@@ -5,8 +5,8 @@ on:
     branches:
     - crawl_engine
 jobs:
-  build:
-    name: Set up environment
+  test-code-generator:
+    name: test-code-generator
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1

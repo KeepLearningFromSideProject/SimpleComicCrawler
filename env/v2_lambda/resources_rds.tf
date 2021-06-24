@@ -101,7 +101,7 @@ resource "aws_db_instance" "comic-db" {
 resource "null_resource" "db_setup" {
     depends_on = [aws_db_instance.comic-db, aws_security_group.db-sg, aws_lambda_function.comic_crawler]
     provisioner "local-exec" {
-        command = "cat ${var.db_sql_path} | mysql -u${var.db_username} -p${var.db_password} -h ${element(split(":", aws_db_instance.comic-db.endpoint), 0)}"
+        command = "cat ${var.db_sql_path} | mysql --default-character-set=utf8mb4 -u${var.db_username} -p${var.db_password} -h ${element(split(":", aws_db_instance.comic-db.endpoint), 0)}"
     }
 }
 

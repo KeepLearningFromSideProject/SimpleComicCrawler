@@ -13,3 +13,4 @@
 *.pem
 *_test.sh
 venv/*
+.secrets

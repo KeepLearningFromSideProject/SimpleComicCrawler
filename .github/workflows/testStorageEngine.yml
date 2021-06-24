@@ -5,8 +5,8 @@ on:
     branches:
     - storage_engine
 jobs:
-  build:
-    name: test StorageEngine
+  test-storage-engine:
+    name: test-storage-engine
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1

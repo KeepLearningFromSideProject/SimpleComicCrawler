@@ -49,7 +49,6 @@ def doRequest(url):
             image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
         driver.close()
     except Exception as e:
-        print(e)
         image_urls = []
         page_num = 0
 

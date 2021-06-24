@@ -47,6 +47,6 @@ RUN cd SimpleComicCrawler && \
 
 # Add req
 ARG REQ_FILE
-ADD $REQ_FILE ${LAMBDA_TASK_ROOT}/req_file.json
+ADD $REQ_FILE ${LAMBDA_TASK_ROOT}/req.json
 
 CMD [ "lambda_main.handler" ]
