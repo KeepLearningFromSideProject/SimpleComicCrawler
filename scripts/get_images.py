@@ -2,13 +2,17 @@
 # episode_url = 'https://comic.aya.click/online/best_13313.html?ch=85'
 
 import os
+import sys
 import json
 from selenium import webdriver
+
 
 def isInLambda():
     return os.path.exists('/var/task')
 
 def doRequest(url):
+    print(f"[Init Options]", file=sys.stderr)
+
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--proxy-server=socks5://localhost:8079')
 
@@ -34,6 +38,8 @@ def doRequest(url):
         else:
             chromedriver = 'chromedriver'
 
+        print(f"[Launch Browser]", file=sys.stderr)
+
         driver = webdriver.Chrome(
             chromedriver,
             options=chrome_options,
@@ -43,12 +49,17 @@ def doRequest(url):
         driver.implicitly_wait(10)
 
         page_num = int(driver.execute_script("return document.querySelector('#pageindex > option:last-child').value"))
+        print(f"[Page Num] {page_num}", file=sys.stderr)
         image_urls = []
         for i in range(1, page_num + 1):
+            print(f"[Go to] {url}-{i}", file=sys.stderr)
             driver.get(f"{url}-{i}")
             image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
+            print(f"[Get Page: {i}] {image_urls[-1]}", file=sys.stderr)
+
         driver.close()
     except Exception as e:
+        print(f"[Error] {e}", file=sys.stderr)
         image_urls = []
         page_num = 0
 
