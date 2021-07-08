@@ -12,6 +12,12 @@ data aws_ecr_image lambda_image {
     image_tag       = local.ecr_image_tag
 }
 
+data archive_file src {
+    type        = "zip"
+    source_dir  = "${path.module}/../../src/"
+    output_path = "src.zip"
+}
+
 ######################################################################
 # LOCALS
 ######################################################################
@@ -34,7 +40,7 @@ resource aws_ecr_repository repo {
 resource null_resource ecr_image {
     triggers = {
         docker_file = md5(file("${path.module}/../../dockerfile")),
-        lambda_main = md5(file("${path.module}/../../src/lambda_main.py"))
+        src_hash    = "${data.archive_file.src.output_sha}"
     }
  
     provisioner "local-exec" {
