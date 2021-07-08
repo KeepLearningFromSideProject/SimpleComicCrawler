@@ -60,6 +60,11 @@ def doRequest(url):
         driver.close()
     except Exception as e:
         print(f"[Error] {e}", file=sys.stderr)
+
+        if os.path.exists('/tmp/chromedriver.log'):
+            with open('/tmp/chromedriver.log', 'r') as logfile:
+                print(f"[Browser Log] {logfile.read()}", file=sys.stderr)
+
         image_urls = []
         page_num = 0
 

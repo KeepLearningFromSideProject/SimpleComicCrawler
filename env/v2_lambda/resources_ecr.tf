@@ -14,8 +14,9 @@ data aws_ecr_image lambda_image {
 
 data archive_file src {
     type        = "zip"
-    source_dir  = "${path.module}/../../src/"
     output_path = "src.zip"
+    count       = "2"
+    source_dir  = "${local.src_dirs[count.index]}"
 }
 
 ######################################################################
@@ -27,6 +28,7 @@ locals {
     account_id          = data.aws_caller_identity.current.account_id
     ecr_repository_name = "${local.prefix}-image"
     ecr_image_tag       = "latest"
+    src_dirs             = ["${path.module}/../../src/", "${path.module}/../../scripts/"]
 }
  
 ######################################################################
@@ -40,7 +42,7 @@ resource aws_ecr_repository repo {
 resource null_resource ecr_image {
     triggers = {
         docker_file = md5(file("${path.module}/../../dockerfile")),
-        src_hash    = "${data.archive_file.src.output_sha}"
+        src_hash    = "${data.archive_file.src[0].output_sha}${data.archive_file.src[1].output_sha}"
     }
  
     provisioner "local-exec" {
