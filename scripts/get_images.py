@@ -1,5 +1,5 @@
 # please add the target episode_url at the start of this code, example:
-#episode_url = 'https://comicbus.live/online/a-9337.html?ch=315'
+# episode_url = 'https://comic.aya.click/online/best_13313.html?ch=85'
 
 import os
 import json

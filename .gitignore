@@ -14,3 +14,4 @@
 *_test.sh
 venv/*
 .secrets
+.idea/*
