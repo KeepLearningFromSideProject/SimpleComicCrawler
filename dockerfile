@@ -1,4 +1,4 @@
-FROM adieuadieu/headless-chromium-for-aws-lambda:89.0.4389.128 AS headless-chrome-image
+FROM adieuadieu/headless-chromium-for-aws-lambda:68.0.3440.84 AS headless-chrome-image
 
 FROM amazon/aws-lambda-python:3.7
 MAINTAINER FATESAIKOU
@@ -23,7 +23,7 @@ RUN cd ${LAMBDA_TASK_ROOT} && \
 COPY --from=headless-chrome-image /bin/headless-chromium /var/task/bin/headless-chromium
 
 # Install chromedriver
-RUN wget 'https://chromedriver.storage.googleapis.com/89.0.4389.23/chromedriver_linux64.zip' -O temp.zip && \
+RUN wget 'https://chromedriver.storage.googleapis.com/2.37/chromedriver_linux64.zip' -O temp.zip && \
 	unzip temp.zip && \
 	mv chromedriver /var/task/bin/chromedriver
 
