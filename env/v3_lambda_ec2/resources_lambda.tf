@@ -4,8 +4,7 @@
 
 # Lambda
 resource "aws_lambda_function" "comic_crawler" {
-    # TODO
-    function_name = "comic_crawler-test"
+    function_name = "comic_crawler"
 
     role = aws_iam_role.lambda_exec.arn
     
@@ -29,8 +28,7 @@ resource "aws_lambda_function" "comic_crawler" {
 
 # IAM role which dictates what other AWS services the Lambda function may access.
 resource "aws_iam_role" "lambda_exec" {
-    # TODO
-    name = "comic_crawler_lambda-test"
+    name = "comic_crawler_lambda"
 
     assume_role_policy = <<EOF
 {
@@ -57,8 +55,7 @@ resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
 
 # Cloud watch
 resource "aws_cloudwatch_event_rule" "every_one_hour" {
-    # TODO
-    name = "every-one-hour-test"
+    name = "every-one-hour"
     description = "Fires one hour"
     schedule_expression = "rate(1 hour)"
 }
