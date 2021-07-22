@@ -59,7 +59,6 @@ jobs:
     - name: Run terraform
       run: |
         cd env/v2_lambda
-        export TF_VAR_proxy_PEM=$(cat ../../tocms.pem)
         terraform init
         terraform plan -out dev.tfplan
         terraform apply dev.tfplan || touch build_failed.txt
