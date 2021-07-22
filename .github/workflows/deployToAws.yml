@@ -20,11 +20,12 @@ jobs:
     - name: Get req & pem & tfstate & tfvar & sql file
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
-        aws s3 cp s3://comiccrawler-data/v2/req.json .
-        aws s3 cp s3://comiccrawler-data/v2/tocms.pem .
-        aws s3 cp s3://comiccrawler-data/v2/terraform.tfvars env/v2_lambda
-        aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v2_lambda
-        aws s3 cp s3://comiccrawler-data/v2/prod_db_build.sql env
+        aws s3 cp s3://comiccrawler-data/v3/req.json .
+        aws s3 cp s3://comiccrawler-data/v3/tocms.pem .
+        aws s3 cp s3://comiccrawler-data/v3/comic-db.pem .
+        aws s3 cp s3://comiccrawler-data/v3/terraform.tfvars env/v3_lambda_ec2
+        aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v3_lambda_ec2
+        aws s3 cp s3://comiccrawler-data/v3/prod_db_build.sql env
       env:
         AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -58,7 +59,7 @@ jobs:
       uses: hashicorp/setup-terraform@v1
     - name: Run terraform
       run: |
-        cd env/v2_lambda
+        cd env/v3_lambda_ec2
         terraform init
         terraform plan -out dev.tfplan
         terraform apply dev.tfplan || touch build_failed.txt
@@ -69,4 +70,4 @@ jobs:
           exit 1
         fi
     - name: Sync terraform.tfstate
-      run: aws s3 cp env/v2_lambda/terraform.tfstate s3://comiccrawler-data/
+      run: aws s3 cp env/v3_lambda_ec2/terraform.tfstate s3://comiccrawler-data/
