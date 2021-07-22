@@ -20,11 +20,11 @@ jobs:
     - name: Get req & pem & tfstate & tfvar & sql file
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
-        aws s3 cp s3://comiccrawler-data/req.json .
-        aws s3 cp s3://comiccrawler-data/tocms.pem .
-        aws s3 cp s3://comiccrawler-data/terraform.tfvars env/v2_lambda
+        aws s3 cp s3://comiccrawler-data/v2/req.json .
+        aws s3 cp s3://comiccrawler-data/v2/tocms.pem .
+        aws s3 cp s3://comiccrawler-data/v2/terraform.tfvars env/v2_lambda
         aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v2_lambda
-        aws s3 cp s3://comiccrawler-data/prod_db_build.sql env
+        aws s3 cp s3://comiccrawler-data/v2/prod_db_build.sql env
       env:
         AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
