@@ -1,14 +1,3 @@
-
-##################################################################################
-# PROVIDERS
-##################################################################################
-
-provider "aws" {
-    access_key = var.aws_access_key
-    secret_key = var.aws_secret_key
-    region     = var.region 
-}
-
 ##################################################################################
 # DATA
 ##################################################################################
@@ -89,7 +78,8 @@ resource "aws_route_table_association" "rtb-subnet1" {
 
 # Security Group
 resource "aws_security_group" "crawler-sg" {
-    name   = "crawler-sg"
+    # TODO
+    name   = "crawler-sg-test"
     vpc_id = aws_vpc.vpc.id
 
     ingress {
