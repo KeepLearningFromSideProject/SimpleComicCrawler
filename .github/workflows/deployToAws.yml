@@ -17,14 +17,13 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.6.10'
-    - name: Get req & pem & tfstate & tfvar & sql file
+    - name: Get req & pem & tfvar & sql file
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
         aws s3 cp s3://comiccrawler-data/v3/req.json .
         aws s3 cp s3://comiccrawler-data/v3/tocms.pem .
         aws s3 cp s3://comiccrawler-data/v3/comic-db.pem .
         aws s3 cp s3://comiccrawler-data/v3/terraform.tfvars env/v3_lambda_ec2
-        aws s3 cp s3://comiccrawler-data/terraform.tfstate env/v3_lambda_ec2
         aws s3 cp s3://comiccrawler-data/v3/prod_db_build.sql env
       env:
         AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -57,6 +56,9 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -y mysql-client-8.0
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
+      with:
+          cli_config_credentials_hostname: 'app.terraform.io'
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     - name: Run terraform
       run: |
         cd env/v3_lambda_ec2
@@ -66,8 +68,5 @@ jobs:
         if [ -f "build_failed.txt" ]
         then
           terraform plan -destroy -out destroy.tfplan && terraform apply destroy.tfplan
-          aws s3 cp terraform.tfstate s3://comiccrawler-data/
           exit 1
         fi
-    - name: Sync terraform.tfstate
-      run: aws s3 cp env/v3_lambda_ec2/terraform.tfstate s3://comiccrawler-data/
