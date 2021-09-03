@@ -13,22 +13,20 @@ def doRequest(url):
 def searchComic(pattern):
     resp = doRequest(
             'https://comicbus.com/member/search.aspx?' + \
-            urllib.parse.urlencode({"k": pattern}, encoding='big5'))
+            urllib.parse.urlencode({"key": pattern}, encoding='big5'))
 
     page = Soup(resp.content.decode('big5'), features="html.parser")
-    rows = page.find_all('td', style="border-bottom:1px dotted #cccccc; line-height:18px; padding-left:5px ")
+    rows = page.find_all('div', class_="cat2_list text-center mb-4")
 
     results = []
     for row in rows:
-        results.extend(row.find_all('a', href=True))
-
-    ret = {}
-    for r in results:
-        title = r.find('font').getText()
+        title = row.find('span').getText()
+    
         if title == pattern:
-            return 'https://comicbus.com' + r['href']
+            return 'https://comicbus.com' + row.find('a', href=True)['href']
 
-    return None
+    raise None
+
 
 if __name__== '__main__':
     comic_url = searchComic(comic_name)
