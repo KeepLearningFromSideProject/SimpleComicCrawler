@@ -13,9 +13,9 @@ def doRequest(url):
 def searchComic(pattern):
     resp = doRequest(
             'https://comicbus.com/member/search.aspx?' + \
-            urllib.parse.urlencode({"key": pattern}, encoding='big5'))
+            urllib.parse.urlencode({"key": pattern}, encoding='utf-8'))
 
-    page = Soup(resp.content.decode('big5'), features="html.parser")
+    page = Soup(resp.content.decode('utf-8'), features="html.parser")
     rows = page.find_all('div', class_="cat2_list text-center mb-4")
 
     results = []
