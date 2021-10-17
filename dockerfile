@@ -23,7 +23,7 @@ RUN cd ${LAMBDA_TASK_ROOT} && \
 COPY --from=headless-chrome-image /bin/headless-chromium /var/task/bin/headless-chromium
 
 # Install chromedriver
-RUN wget 'https://chromedriver.storage.googleapis.com/2.37/chromedriver_linux64.zip' -O temp.zip && \
+RUN wget 'https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip' -O temp.zip && \
 	unzip temp.zip && \
 	mv chromedriver /var/task/bin/chromedriver
 
