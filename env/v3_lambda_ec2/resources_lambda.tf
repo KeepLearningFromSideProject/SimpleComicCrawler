@@ -57,7 +57,7 @@ resource "aws_iam_role_policy_attachment" "AWSLambdaVPCAccessExecutionRole" {
 resource "aws_cloudwatch_event_rule" "every_one_hour" {
     name = "every-one-hour"
     description = "Fires one hour"
-    schedule_expression = "rate(150 days)"
+    schedule_expression = "rate(1 hour)"
 }
 
 resource "aws_cloudwatch_event_target" "crawl_comic_every_one_hour" {

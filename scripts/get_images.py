@@ -54,6 +54,7 @@ def doRequest(url):
         for i in range(1, page_num + 1):
             print(f"[Go to] {url}-{i}", file=sys.stderr)
             driver.get(f"{url}-{i}")
+            driver.implicitly_wait(10)
             image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
             print(f"[Get Page: {i}] {image_urls[-1]}", file=sys.stderr)
 
