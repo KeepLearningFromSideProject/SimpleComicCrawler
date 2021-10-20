@@ -4,6 +4,8 @@
 import os
 import sys
 import json
+import time
+import subprocess
 from selenium import webdriver
 
 
@@ -52,11 +54,17 @@ def doRequest(url):
         print(f"[Page Num] {page_num}", file=sys.stderr)
         image_urls = []
         for i in range(1, page_num + 1):
-            print(f"[Go to] {url}-{i}", file=sys.stderr)
-            driver.get(f"{url}-{i}")
-            driver.implicitly_wait(10)
-            image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
-            print(f"[Get Page: {i}] {image_urls[-1]}", file=sys.stderr)
+            while True:
+                try:
+                    print(f"[Go to] {url}-{i}", file=sys.stderr)
+                    driver.get(f"{url}-{i}")
+                    image_urls.append(driver.execute_script("return document.getElementById('TheImg').src;"))
+                    print(f"[Get Page: {i}] {image_urls[-1]}", file=sys.stderr)
+                    break
+                except:
+                    os.system("killall -9 ssh")
+                    subprocess.Popen(["bash", "/proxy_launch.sh"])
+                    time.sleep(5)
 
         driver.close()
     except Exception as e:
