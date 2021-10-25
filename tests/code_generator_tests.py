@@ -23,7 +23,7 @@ class CodeGeneratorTest(unittest.TestCase):
     def setUp(self):
         self.comic_name = '食戟之靈'
         self.comic_url = 'https://comicbus.com/html/9337.html'
-        self.episode_url = 'https://comicbus.live/online/a-9337.html?ch=1'
+        self.episode_url = 'https://comicabc.com/online/new-9337.html?ch=1'
 
     def tearDown(self):
         pass

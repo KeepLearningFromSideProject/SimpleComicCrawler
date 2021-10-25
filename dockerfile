@@ -27,6 +27,10 @@ RUN wget 'https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.
 	unzip temp.zip && \
 	mv chromedriver /var/task/bin/chromedriver
 
+# Install nodejs
+RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
+RUN yum install -y nodejs
+
 # Insert ssh proxy launching command to aws sh
 ARG PROXY_HOST
 ARG PROXY_PORT
@@ -43,7 +47,8 @@ RUN echo -e "$proxy_command" > /proxy_launch.sh && \
 RUN git clone https://github.com/KeepLearningFromSideProject/SimpleComicCrawler.git
 RUN cd SimpleComicCrawler && \
 	pip3 install -r requirements.txt && \
-	cp -r src/* ${LAMBDA_TASK_ROOT}
+	cp -r src/* ${LAMBDA_TASK_ROOT} && \
+	cd scripts/nodejs_get_images && npm install
 
 # Add req
 ARG REQ_FILE
