@@ -50,9 +50,9 @@ RUN echo -e "$proxy_command" > /proxy_launch.sh && \
 # Get project source
 ADD . SimpleComicCrawler
 RUN cd SimpleComicCrawler && \
-	  pip3 install -r requirements.txt && \
-  	cp -r src/* ${LAMBDA_TASK_ROOT} && \
-  	cd scripts/nodejs_get_images && npm install
+    pip3 install -r requirements.txt && \
+    cp -r src/* ${LAMBDA_TASK_ROOT} && \
+    cd scripts/nodejs_get_images && npm install
 
 # Add req
 ARG REQ_FILE
