@@ -20,6 +20,15 @@ const spp = () => {}`
 const episode_url = process.argv?.[2] || null
 const isVerbose = false
 
+async function Request(url)
+{
+    return fetch(url, {
+        headers: {
+            "RI": ""
+        }
+    })
+}
+
 function FirstOrDefault (args) 
 {
     return args?.[0]
@@ -30,7 +39,7 @@ async function FetchImageAmount(url, evalScriptPrefix)
     if (isVerbose)
         console.error(`[FetchImageAmount] [${url}] Fetching url`)
 
-    const resp = await fetch(url)
+    const resp = await Request(url)
     const html = await resp.text()
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] Fetching Result: [${html}]`)
@@ -64,7 +73,7 @@ async function FetchImageSrc(url, evalScriptPrefix)
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] Fetching url`)
 
-    const resp = await fetch(url)
+    const resp = await Request(url)
     const html = await resp.text()
 
     if (isVerbose)
@@ -109,7 +118,7 @@ async function Run() {
     const nviewUrl = `https://${hostname}/js/nview.js`
 
     // Get raw string of function lc(), nn(), mm()
-    const nviewResp = await fetch(nviewUrl)
+    const nviewResp = await Request(nviewUrl)
     const nviewScript = await nviewResp.text()
     if (isVerbose)
         console.error(`[FetchNView] [${nviewUrl}] Fetch Result = [${nviewScript}]`)
@@ -153,7 +162,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (episode_url == null) {
         console.error('Please Provide episode_url!')
         console.error('example:')
-        console.error(`\t node index.js 'https://comicabc.com/online/new-19317.html?ch=1'`)
+        console.error(`\t node get_images.js 'https://comicabc.com/online/new-19317.html?ch=1'`)
     }
     else {
         (async () => {
