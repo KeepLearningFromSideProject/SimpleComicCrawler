@@ -5,12 +5,12 @@ MAINTAINER FATESAIKOU
 
 # Install git wget unzip vim
 RUN yum update -y && \
-  yum install -y git wget unzip vim procps psmisc && \
-  rm -Rf /var/cache/yum
+    yum install -y git wget unzip vim procps psmisc && \
+    rm -Rf /var/cache/yum
 
 # Install mysql-cmd-client
 RUN yum install -y https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm && \
-	yum install -y mysql-community-client
+    yum install -y mysql-community-client
 
 # Download recompilled ssh and replace system ssh
 RUN cd ${LAMBDA_TASK_ROOT} && \
@@ -24,8 +24,12 @@ COPY --from=headless-chrome-image /bin/headless-chromium /var/task/bin/headless-
 
 # Install chromedriver
 RUN wget 'https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip' -O temp.zip && \
-	unzip temp.zip && \
-	mv chromedriver /var/task/bin/chromedriver
+    unzip temp.zip && \
+    mv chromedriver /var/task/bin/chromedriver
+
+# Install nodejs
+RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
+RUN yum install -y nodejs
 
 # Install nodejs
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
@@ -44,11 +48,11 @@ RUN echo -e "$proxy_command" > /proxy_launch.sh && \
     chmod 755 /proxy_launch.sh
 
 # Get project source
-RUN git clone https://github.com/KeepLearningFromSideProject/SimpleComicCrawler.git
+ADD . SimpleComicCrawler
 RUN cd SimpleComicCrawler && \
-	pip3 install -r requirements.txt && \
-	cp -r src/* ${LAMBDA_TASK_ROOT} && \
-	cd scripts/nodejs_get_images && npm install
+	  pip3 install -r requirements.txt && \
+  	cp -r src/* ${LAMBDA_TASK_ROOT} && \
+  	cd scripts/nodejs_get_images && npm install
 
 # Add req
 ARG REQ_FILE
