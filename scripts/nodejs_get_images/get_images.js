@@ -24,7 +24,7 @@ async function Request(url)
 {
     return fetch(url, {
         headers: {
-            "RI": ""
+            "Cookie": "RI=0"
         }
     })
 }
