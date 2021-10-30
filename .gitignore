@@ -16,3 +16,7 @@ venv/*
 .secrets
 .idea/*
 *.zip
+
+# ignore eventthing in scripts/nodejs_get_images and 
+# let scripts/nodejs_get_images/.gitignore handle ignores 
+!scripts/nodejs_get_images/**

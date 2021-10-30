@@ -49,7 +49,7 @@ def handler(event, context):
 
     process(
         raw_request=raw_request,
-        code_base_dir='/var/task/SimpleComicCrawler/scripts',
+        code_base_dir='/var/task/scripts',
         db=os.environ['db_name'],
         db_host=os.environ['db_host'],
         db_port=int(os.environ['db_port']),
