@@ -31,10 +31,6 @@ RUN wget 'https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
 
-# Install nodejs
-RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
-
 # Insert ssh proxy launching command to aws sh
 ARG PROXY_HOST
 ARG PROXY_PORT
