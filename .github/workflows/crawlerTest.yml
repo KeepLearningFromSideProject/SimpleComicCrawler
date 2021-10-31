@@ -1,0 +1,34 @@
+name: Crawler Test
+
+on:
+  schedule:
+    - cron:  '0 * * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+    branches:
+      - main
+  pull_request_review_comment:
+    types: [created, edited]
+    branches:
+      - main
+
+jobs:
+  crawler-test:
+    name: crawler-test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: docker/build-push-action@v2
+      with:
+        context: .
+        tags: test-image:latest
+        push: false
+    - uses: addnab/docker-run-action@v3
+      with:
+        image: test-image:latest
+        run: python3 crawling_doer_tests.py
