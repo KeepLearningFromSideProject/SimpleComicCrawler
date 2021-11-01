@@ -5,7 +5,6 @@ import time
 import signal
 import shutil
 import logging
-import subprocess
 
 from selenium import webdriver
 from lib.request_handler import RequestHandler
@@ -45,7 +44,6 @@ def handler(event, context):
         raw_request = json.loads(src.read())
 
     LOGGER.info('Do process')
-    proxy_process = subprocess.Popen(["bash", "/proxy_launch.sh"])
 
     process(
         raw_request=raw_request,
@@ -56,8 +54,6 @@ def handler(event, context):
         db_user=os.environ['db_user'],
         db_password=os.environ['db_pass'] 
     )
-    
-    os.system("killall -9 ssh")
     
     LOGGER.info('End process')
 
