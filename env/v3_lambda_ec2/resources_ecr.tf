@@ -49,11 +49,7 @@ resource null_resource ecr_image {
         command = <<EOF
             aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.${var.region}.amazonaws.com
             cd ${path.module}/../../
-            docker build --build-arg PROXY_HOST=${var.proxy_host} \
-                --build-arg PROXY_PORT=${var.proxy_port} \
-                --build-arg PROXY_USER=${var.proxy_user} \
-                --build-arg PROXY_PEM="${var.proxy_PEM}" \
-                --build-arg REQ_FILE=${var.req_file} \
+            docker build --build-arg REQ_FILE=${var.req_file} \
                 --no-cache -t ${aws_ecr_repository.repo.repository_url}:${local.ecr_image_tag} .
             docker push ${aws_ecr_repository.repo.repository_url}:${local.ecr_image_tag}
         EOF

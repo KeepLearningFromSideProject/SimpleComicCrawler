@@ -1,5 +1,3 @@
-FROM adieuadieu/headless-chromium-for-aws-lambda:68.0.3440.84 AS headless-chrome-image
-
 FROM amazon/aws-lambda-python:3.7
 MAINTAINER FATESAIKOU
 
@@ -12,36 +10,9 @@ RUN yum update -y && \
 RUN yum install -y https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm && \
     yum install -y mysql-community-client
 
-# Download recompilled ssh and replace system ssh
-RUN cd ${LAMBDA_TASK_ROOT} && \
-    git clone 'https://github.com/lambci/git-lambda-layer.git' && \
-    unzip git-lambda-layer/lambda1/layer.zip bin/ssh && \
-    cp bin/ssh /usr/bin/ssh && \
-    rm -rf git-lambda-layer bin
-
-# Install chrome
-COPY --from=headless-chrome-image /bin/headless-chromium /var/task/bin/headless-chromium
-
-# Install chromedriver
-RUN wget 'https://chromedriver.storage.googleapis.com/2.42/chromedriver_linux64.zip' -O temp.zip && \
-    unzip temp.zip && \
-    mv chromedriver /var/task/bin/chromedriver
-
 # Install nodejs
 RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
 RUN yum install -y nodejs
-
-# Insert ssh proxy launching command to aws sh
-ARG PROXY_HOST
-ARG PROXY_PORT
-ARG PROXY_USER
-ARG PROXY_PEM
-ADD $PROXY_PEM /proxy.pem
-RUN chmod 644 /proxy.pem
-
-ARG proxy_command="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -N -D8079 -p$PROXY_PORT -4 $PROXY_USER@$PROXY_HOST -i /proxy.pem &\nwait \$!"
-RUN echo -e "$proxy_command" > /proxy_launch.sh && \
-    chmod 755 /proxy_launch.sh
 
 # Get project source
 ADD . SimpleComicCrawler
