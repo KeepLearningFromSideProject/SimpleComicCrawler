@@ -6,15 +6,15 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - master
   pull_request:
     types: [opened, reopened, ready_for_review]
     branches:
-      - main
+      - master
   pull_request_review_comment:
     types: [created, edited]
     branches:
-      - main
+      - master
 
 jobs:
   crawler-test:
