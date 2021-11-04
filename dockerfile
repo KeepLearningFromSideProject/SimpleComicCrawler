@@ -11,8 +11,11 @@ RUN yum install -y https://dev.mysql.com/get/mysql57-community-release-el7-11.no
     yum install -y mysql-community-client
 
 # Install nodejs
-RUN curl -fsSL https://rpm.nodesource.com/setup_16.x | bash -
-RUN yum install -y nodejs
+RUN touch ~/.bashrc
+RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+RUN . ~/.nvm/nvm.sh && nvm install 16.0.0
+RUN ln -s /root/.nvm/versions/node/v16.0.0/bin/node /usr/bin/node
+RUN ln -s /root/.nvm/versions/node/v16.0.0/bin/npm /usr/bin/npm
 
 # Get project source
 ADD . SimpleComicCrawler
