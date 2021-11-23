@@ -12,7 +12,7 @@ def doRequest(url):
 
 def searchComic(pattern):
     resp = doRequest(
-            'https://comicbus.com/member/search.aspx?' + \
+            'https://www.comicabc.com/member/search.aspx?' + \
             urllib.parse.urlencode({"key": pattern}, encoding='utf-8'))
 
     page = Soup(resp.content.decode('utf-8'), features="html.parser")
