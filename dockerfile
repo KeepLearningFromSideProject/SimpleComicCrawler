@@ -6,10 +6,6 @@ RUN yum update -y && \
     yum install -y git wget unzip vim procps psmisc && \
     rm -Rf /var/cache/yum
 
-# Install mysql-cmd-client
-RUN yum install -y https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm && \
-    yum install -y mysql-community-client
-
 # Install nodejs
 RUN touch ~/.bashrc
 RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
