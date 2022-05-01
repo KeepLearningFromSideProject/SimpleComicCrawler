@@ -1,0 +1,53 @@
+name: Do Crawl 
+
+on:
+  schedule:
+    - cron:  '0 */2 * * *'
+  workflow_dispatch:
+
+jobs:
+  do-crawl:
+    name: do-crawl
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: install python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9.12'
+
+    - name: install python dependency
+      run: pip install -r requirements.txt
+
+    - name: install node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: install node dependency
+      run: |
+        cd scripts/nodejs_get_images
+        npm install
+
+    - name: install aws cli 
+      uses: chrislennon/action-aws-cli@v1.1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    - name: Get req
+      run: |
+        aws s3 cp s3://comiccrawler-data/v4/req.json .
+      env:
+        AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: do crawling
+      run: |
+        python3 src/mysql_main.py \
+          ./req.json \
+          ./scripts \
+          ${{ secrets.DB_NAME }} \
+          ${{ secrets.DB_HOST }} \
+          ${{ secrets.DB_PORT }} \
+          ${{ secrets.DB_USER }} \
+          ${{ secrets.DB_PASS }}
