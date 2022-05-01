@@ -13,48 +13,21 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Test comic crawler
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        tags: test-image:latest
-        push: false
-    - uses: addnab/docker-run-action@v3
-      with:
-        image: test-image:latest
-        run: python3 crawling_doer_tests.py
-
     - name: install venv
       uses: actions/setup-python@v2
       with:
-        python-version: '3.6.10'
+        python-version: '3.9.12'
     - name: Get req & pem & tfvar & sql file
       uses: chrislennon/action-aws-cli@v1.1
     - run: |
-        aws s3 cp s3://comiccrawler-data/v3/req.json .
-        aws s3 cp s3://comiccrawler-data/v3/tocms.pem .
-        aws s3 cp s3://comiccrawler-data/v3/comic-db.pem .
-        aws s3 cp s3://comiccrawler-data/v3/terraform.tfvars env/v3_lambda_ec2
-        aws s3 cp s3://comiccrawler-data/v3/prod_db_build.sql env
+        aws s3 cp s3://comiccrawler-data/v4/req.json .
+        aws s3 cp s3://comiccrawler-data/v4/comic-db.pem .
+        aws s3 cp s3://comiccrawler-data/v4/terraform.tfvars env/v4_only_db
+        aws s3 cp s3://comiccrawler-data/v4/prod_db_build.sql env
       env:
         AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Set up for Amazon ECR
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-1
-    - name: Login to Amazon ECR
-      uses: aws-actions/amazon-ecr-login@v1
-    - name: Install mysql client
-      run: |
-        sudo apt-get update
-        sudo apt-get purge -y mysql*
-        sudo apt-get install -y mysql-client-core-8.0 mysql-client-8.0 mysql-common
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v1
       with:
@@ -62,7 +35,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     - name: Run terraform
       run: |
-        cd env/v3_lambda_ec2
+        cd env/v4_only_db
         terraform init
         terraform plan -out dev.tfplan
         terraform apply dev.tfplan || touch build_failed.txt
