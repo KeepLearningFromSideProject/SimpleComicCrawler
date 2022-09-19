@@ -4,6 +4,10 @@ on:
   schedule:
     - cron:  '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      max_download:
+        description: "the maximum number of episodes to download"
+        default: '10'
 
 jobs:
   do-crawl:
@@ -50,4 +54,5 @@ jobs:
           ${{ secrets.DB_HOST }} \
           ${{ secrets.DB_PORT }} \
           ${{ secrets.DB_USER }} \
-          ${{ secrets.DB_PASS }}
+          ${{ secrets.DB_PASS }} \
+          ${{ github.event.inputs.max_download }}

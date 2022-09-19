@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """
-A basic runner to crawl comic
+A mysql runner to crawl comic
 
 @argv[1]: the file path of request json
 @argv[2]: the directory of crawling scripts
-@argv[3]: the path of the database file
+@argv[3]: db name
+@argv[4]: db host
+@argv[5]: db port
+@argv[6]: db user
+@argv[7]: db password
+@argv[8]: the maximum number of episodes to download
 """
 
 import sys
@@ -13,10 +18,10 @@ import json
 from lib.request_handler import RequestHandler
 
 
-def process(raw_request, code_base_dir, db, db_host, db_port, db_user, db_password):
+def process(raw_request, code_base_dir, db, db_host, db_port, db_user, db_password, max_download):
     req_h = RequestHandler(
         crawler_config={
-            'max_download': 10,
+            'max_download': max_download,
             'code_dir_base': code_base_dir,
             'worker_info': {
                 'type': 'direct'
@@ -46,5 +51,6 @@ if __name__ == '__main__':
         db_host=sys.argv[4],
         db_port=int(sys.argv[5]),
         db_user=sys.argv[6],
-        db_password=sys.argv[7]
+        db_password=sys.argv[7],
+        max_download=int(sys.argv[8])
     )
