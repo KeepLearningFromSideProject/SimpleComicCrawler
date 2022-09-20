@@ -47,6 +47,7 @@ jobs:
 
     - name: do crawling
       run: |
+        max_download="${{ github.event.inputs.max_download }}"
         python3 src/mysql_main.py \
           ./req.json \
           ./scripts \
@@ -55,4 +56,4 @@ jobs:
           ${{ secrets.DB_PORT }} \
           ${{ secrets.DB_USER }} \
           ${{ secrets.DB_PASS }} \
-          ${{ github.event.inputs.max_download }}
+          ${max_download:-10}
