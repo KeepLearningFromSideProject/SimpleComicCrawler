@@ -1,0 +1,74 @@
+name: Backup db
+
+on:
+  schedule:
+    - cron:  '0 0 * * *'
+jobs:
+  backup-db:
+    name: backup-db
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install venv
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9.12'
+
+    - name: Setup aws-cli
+      uses: chrislennon/action-aws-cli@v1.1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    - name: Get terraform.vars
+      run: |
+        aws s3 cp s3://comiccrawler-data/v4/terraform.tfvars env/v4_only_db
+      env:
+        AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        cli_config_credentials_hostname: 'app.terraform.io'
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Install mysqldump
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install mysql-client
+
+    - name: Set db info
+      id: set_db_info
+      run: |
+        cd env/v4_only_db
+        terraform init
+        terraform output db_dns | sed 's/"//g'
+        echo "::set-output name=DB_USER::"$(grep 'db_username' terraform.tfvars | awk -F'"' '{ print $2 }')
+        echo "::set-output name=DB_PASS::"$(grep 'db_password' terraform.tfvars | awk -F'"' '{ print $2 }')
+
+    - name: Dump DB
+      run: |
+        echo $DB_HOST $DB_USER $DB_PASS
+        tables=( 'comics' 'episodes' 'images' )
+        echo 'USE `comicdb`;' > prod_db_build.sql
+        for table in "${tables[@]}"
+        do
+          mysqldump comicdb $table \
+            -h$DB_HOST \
+            -u$DB_USER \
+            -p$DB_PASS \
+            --skip-column-statistics \
+            >> prod_db_build.sql 2>/dev/null
+        done
+        sed -i '/^--/d; /^\/\*/d;' prod_db_build.sql
+      env:
+        DB_HOST: ${{ steps.set_db_info.outputs.stdout }}
+        DB_USER: ${{ steps.set_db_info.outputs.DB_USER }}
+        DB_PASS: ${{ steps.set_db_info.outputs.DB_PASS }}
+
+    - name: Upload prod_db_build.sql
+      run: |
+        aws s3 cp prod_db_build.sql s3://comiccrawler-data/v4/prod_db_build.sql
+      env:
+        AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
