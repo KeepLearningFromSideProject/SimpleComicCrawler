@@ -23,7 +23,7 @@ def searchComic(pattern):
         title = row.find('span').getText()
     
         if title == pattern:
-            return 'https://comicbus.com' + row.find('a', href=True)['href']
+            return row.find('a', href=True)['href']
 
     raise None
 
