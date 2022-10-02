@@ -20,8 +20,7 @@ const spp = () => {}`
 const episode_url = process.argv?.[2] || null
 const isVerbose = false
 
-async function Request(url)
-{
+async function Request(url) {
     return fetch(url, {
         headers: {
             "Cookie": "RI=0"
@@ -29,13 +28,11 @@ async function Request(url)
     })
 }
 
-function FirstOrDefault (args) 
-{
+function FirstOrDefault(args) {
     return args?.[0]
 }
 
-async function FetchImageAmount(url, evalScriptPrefix)
-{
+async function FetchImageAmount(url, evalScriptPrefix) {
     if (isVerbose)
         console.error(`[FetchImageAmount] [${url}] Fetching url`)
 
@@ -59,17 +56,16 @@ async function FetchImageAmount(url, evalScriptPrefix)
     const IncludeSrc = el => el.includes('src=')
     const srcScript = FirstOrDefault(script.split(';').filter(IncludeSrc))?.replace(/.*\.src=/, '')
     if (isVerbose)
-       console.error(`[FetchImageSrc] [${url}] srcScript = [${srcScript}]`)
+        console.error(`[FetchImageSrc] [${url}] srcScript = [${srcScript}]`)
 
-    const evalScript = [evalScriptPrefix, script, srcScript, '(ps)'].join(';')
+    const evalScript = [evalScriptPrefix, script, '(ps)'].join(';')
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] evalScript = [${evalScript}]`)
 
     return eval(evalScript)
 }
 
-async function FetchImageSrc(url, evalScriptPrefix)
-{
+async function FetchImageSrc(url, evalScriptPrefix) {
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] Fetching url`)
 
@@ -92,10 +88,11 @@ async function FetchImageSrc(url, evalScriptPrefix)
     // 
     // we use replace to remove "ge(k0__0r_4av(6)+k0__0r_4av(5)).src=" part
     const IncludeSrc = el => el.includes('src=')
-    const srcScript = FirstOrDefault(script.split(';').filter(IncludeSrc))?.replace(/.*\.src=/, '')
+    let srcScript = FirstOrDefault(script.split(';').filter(IncludeSrc))?.replace(/.*\.src=/, '')
+    srcScript = `(pp => { return ${srcScript} })(p)`
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] srcScript = [${srcScript}]`)
-    
+
     const evalScript = [evalScriptPrefix, script, `(${srcScript})`].join(';')
     if (isVerbose)
         console.error(`[FetchImageSrc] [${url}] evalScript = [${evalScript}]`)
@@ -148,7 +145,6 @@ async function Run() {
     const tasks = [...Array(episodeImageCount).keys()]
         .map(x => x + 1)
         .map(i => FetchImageSrc(`${url}-${i}`, evalScriptPrefix))
-    
     const taskResults = await Promise.all(tasks)
 
     return {
@@ -167,7 +163,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     else {
         (async () => {
             const result = await Run()
-            console.log(JSON.stringify(result))
+            console.log(JSON.stringify(result, null, 4))
         })();
     }
 }
